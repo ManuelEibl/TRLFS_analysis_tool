@@ -32,7 +32,8 @@ Saves x,y data if data was integrated before by using either **Integreate all** 
 Saves x,y data as .asc file for the data selected in the lister box in a selected folder.
 
 ### Save all
-Saves all files in listerbox as .asc files in selected folder.
+Saves all files in listerbox as .asc files in selected folder.  
+Changes, such as a background subtraction, made to the data are kept.
 
 ### Plot
 Plots selected data.    
@@ -40,7 +41,7 @@ Plots selected data.
 'Enter' will do the same.
 
 ### Clear list
-Removes all files
+Removes all files from the list.
 
 ### Integrate   
 Integrates the selected files and presents the resulting values.
