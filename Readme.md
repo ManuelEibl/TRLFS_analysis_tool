@@ -5,7 +5,7 @@ It comes with a GUI to facilitate usage.
 Input can be either a text file such as .asc, .txt, .dat or the Andor Software File .sif. Multi-imaged .sif files,
 especially lifetime data will be transferred into individual files from one .sif file on opening.
 
-###Open    
+### Open    
 Opens a tkinter dialog for opening one or multiple files, which is/are then added to the lister box below.
 Data of all files is plotted.
 
@@ -15,31 +15,31 @@ Data of all files is plotted.
 can be saved as such
 * remembers last folder from which files were loaded for quicker navigation
 
-###Baseline subtraction    
+### Baseline subtraction    
 Opens a tkinter window with the files selected in the lister box.
 Double-click adds draggable nodes for the baseline creation, right-mouse button removes a selected point.
 
-###Choose integration range    
+### Choose integration range    
 Gives two draggable lines to define an integration range.
 
-###Save integration range
+### Save integration range
 Saves x,y data if data was integrated before by using either **Integreate all** or **Integrate**
 
-###Save selected data
+### Save selected data
 Saves x,y data as .asc file for the data selected in the lister box in a selected folder.
 
-###Save all
+### Save all
 Saves all files in listerbox as .asc files in selected folder.
 
-###Plot
+### Plot
 Plots selected data.    
 *Note*: Double-clicking an item from the lister box or selecting multiple files using 'Control' or 'Shift' and pressing 
 'Enter' will do the same.
 
-###Clear list
+### Clear list
 Removes all files
 
-###Integrate   
+### Integrate   
 Integrates the selected files and presents the resulting values.
 
 *Feauters*  
@@ -47,7 +47,7 @@ Integrates the selected files and presents the resulting values.
 *   If files end on a wavelenght in the shape of abc_58000.asc (in case of a wavelength of 580.00 nm) the wavelenght
 will be uesd as x-axis
 
-###Integrate all
+### Integrate all
 Integreates all files in the lister box and presents the resulting values.
 
 *Feauters*  
