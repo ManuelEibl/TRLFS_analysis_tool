@@ -132,9 +132,19 @@ def _open(fp):
         for _ in range(15):
             fp.readline()
     elif info['SifVersion'] == 65567:
-        for _ in range(10):
+        for _ in range(3):
+            _read_until(fp, ' ')
+        info['CenterWavelength'] = _read_float(fp)
+        for _ in range(2):
+            _read_float(fp)
+        info['Grating'] = _read_float(fp)
+        for _ in range(91):
             fp.readline()
-        for _ in range(12):
+        for _ in range(6):
+            _read_until(fp, ' ')
+        info['GateDelay'] = _read_float(fp)
+        info['GateWidth'] = _read_float(fp)
+        for _ in range(4):
             _read_until(fp, ' ')
         info['GateDelayStep'] = _read_float(fp)
         for _ in range(8):

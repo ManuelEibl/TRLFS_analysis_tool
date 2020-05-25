@@ -58,9 +58,12 @@ def lifetime_handler(inp_data):
     try:
         data, info = sif_reader.np_open(inp_data)
         data_fail_test = data[1][0] # Will fail if it is a single .sif spectrum
-        return data, info
+        type = 2
+        return data, info, type
     except:
-        return None
+        data, info = sif_reader.np_open(inp_data)
+        type = 1
+        return data, info, type
 
 def energy_corrector(data, i, xdata, energydata):
     out_energy_corr_data = []
