@@ -94,8 +94,8 @@ def _open(fp):
     _read_until(fp, ' ') # 1
     info['GainDAC'] = _read_float(fp)
 
-    _read_until(fp, ' ')
-    _read_until(fp, ' ')
+    info['GateDelay'] = _read_float(fp)     # For camera version DH340T-18H-13 this is stored somewhere else
+    info['GateWidth'] = _read_float(fp)     # will be overwritten later in that case
 
     info['GateDelayStep'] = _read_float(fp)
 
@@ -138,14 +138,21 @@ def _open(fp):
         for _ in range(2):
             _read_float(fp)
         info['Grating'] = _read_float(fp)
-        for _ in range(91):
+        fp.readline()
+        _read_until(fp, ' ')
+        info['SlitOpening'] = _read_int(fp)
+        for _ in range(8):
             fp.readline()
-        for _ in range(6):
-            _read_until(fp, ' ')
-        info['GateDelay'] = _read_float(fp)
-        info['GateWidth'] = _read_float(fp)
-        for _ in range(4):
-            _read_until(fp, ' ')
+        if info['GateWidth'] != 0.0:
+            for _ in range(12):
+                _read_until(fp, ' ')
+        else:       # This happens for camera version DH340T-18H-13 e.g.
+            for _ in range(6):
+                _read_until(fp, ' ')
+            info['GateDelay'] = _read_float(fp)
+            info['GateWidth'] = _read_float(fp)
+            for _ in range(4):
+                _read_until(fp, ' ')
         info['GateDelayStep'] = _read_float(fp)
         for _ in range(8):
             fp.readline()

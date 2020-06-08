@@ -3,7 +3,8 @@ This program reads spectroscopic x,y data (.asc, .txt, or AndorFile .sif) of sin
 This data can be background_corrected, integrated, saved and plotted.
 
 Started: 10.09.2019
-Last edit: 25.05.2020
+Last edit: 08.06.2020
+Version: 1.1.0
 Creator: Manuel Eibl
 """
 
@@ -101,6 +102,7 @@ class DataFiles():
         lister.delete(0, tk.END)
 
     def integrate_data(self):
+        button_excitation_wavelengths['state'] = 'normal'
         self.integral_xdata = []
         self.integral_ydata = []
         line1_x_value = None
@@ -151,15 +153,15 @@ class DataFiles():
         integral_plotter(self.integral_xdata, self.integral_ydata)
 
     def integrate_all_data(self):
+        button_excitation_wavelengths['state'] = 'normal'
         self.integral_xdata = []
         self.integral_ydata = []
-        line1_x_value = 0.0
-        line2_x_value = 0.0
+        line1_x_value = None
+        line2_x_value = None
         if integration_lines.get_range() is not None:
             line1_x_value, line2_x_value = integration_lines.get_range()
-        item_indexes = lister.get(0, tk.END)
-        for i, item_index in enumerate(item_indexes):
-            file_name = lister.get(item_index)
+        all_files = lister.get(0, tk.END)
+        for i, file_name in enumerate(all_files):
             file = self.get_file_from_file_name(file_name)
             stripped_file_name = os.path.split(file)[1].split('.')[0]
             try:
@@ -182,7 +184,7 @@ class DataFiles():
                 xdata, ydata = trlfs.load_data(file)
             else:
                 xdata, ydata = background.background_corr_data[i]
-            if line1_x_value + line2_x_value != 0.0:
+            if line1_x_value != None:
                 for j, value in enumerate(xdata):   # find xdata value closest to line1 x value
                     if value >= line1_x_value:
                         lower_value = j
@@ -207,16 +209,22 @@ class DataFiles():
         return output
 
     def save_integration_data(self):
+        first_file_name = lister.get(0)
         if integration_lines.get_range() is not None:
             line1_x_value, line2_x_value = integration_lines.get_range()
         else:
-            first_file_name = lister.get(0)
             file = data_files.get_file_from_file_name(first_file_name)
             xdata, _ = trlfs.load_data(file)
             line1_x_value = xdata[0]
             line2_x_value = xdata[-1]
+        out_file_name = os.path.split(first_file_name)[1].split('.')[0]
+        if out_file_name.split('_')[0] != out_file_name:
+            temp_out_file_name = ''
+            for i in range(len(out_file_name.split('_')) - 1):
+                temp_out_file_name += out_file_name.split('_')[i]
+            out_file_name = temp_out_file_name
         output = self.integral_output_maker()
-        init_file_name = f'Integration from {int(line1_x_value*100)/100} - {int(line2_x_value*100)/100}'
+        init_file_name = f'{out_file_name} integration from {int(line1_x_value*100)/100} - {int(line2_x_value*100)/100}'
         save_file = filedialog.asksaveasfilename(initialdir=self.get_data_dir(), initialfile=init_file_name, defaultextension='.txt', filetypes=[('Text file', '*.txt'), ('Others', ('*.asc', '*dat'))])
         with open(str(save_file), 'w+') as o:
             o.write(str(output))
@@ -358,7 +366,7 @@ class DataFiles():
         # Slit
         label_slit = tk.Label(self.display_acquisition_window, text='Slit opening')
         label_slit.grid(row=4, column=0)
-        value_slit = tk.Label(self.display_acquisition_window, text='To do')
+        value_slit = tk.Label(self.display_acquisition_window, text=str(info['SlitOpening']) + ' um')
         value_slit.grid(row=4, column=1)
         # Gain
         label_gain = tk.Label(self.display_acquisition_window, text='Gain')
@@ -418,6 +426,7 @@ class DraggableLines():
         self.lines = lines
 
     def init_line(self):
+        self.lines = []
         # Make default lines first
         file = data_files.get_list_of_all_files()[0]
         xdata, _ = trlfs.load_data(file)
@@ -760,7 +769,7 @@ def browse_files():
     new_files = list(root.filename)
     files_to_add = []
     data_files.info = []    # If lifetime measurements were loaded earlier, its acquisition information is cleared
-    if len(new_files) == 1:
+    if len(new_files) == 1 and new_files[0].split('.')[-1] == 'sif':
         file = new_files[0]
         data, info, type = trlfs.lifetime_handler(file)
         if type == 2:
@@ -780,6 +789,16 @@ def browse_files():
         file_list = data_files.add_files_from_list(files_to_add)
         data_files.write_data_dir()
         plot_all(file_list)
+
+
+def load_x_values():
+    root.filename = filedialog.askopenfilename(initialdir=data_files.get_data_dir(), title='Select files', filetype=(('All files', '*.*'), ('Text files', ('*.asc', '*.txt'))))
+    xdata = trlfs.load_wavelength_data(root.filename)
+    if len(xdata) != len(data_files.integral_xdata):
+        print('Error, number of data points and x-values unequal')
+        return
+    data_files.integral_xdata = xdata
+    integral_plotter(data_files.integral_xdata, data_files.integral_ydata)
 
 
 # Terminates the program if user closes GUI window
@@ -858,6 +877,9 @@ button_save_selected.grid(row=0, column=12, columnspan=2, sticky='wnse')
 
 button_save_data = tk.Button(root, text='Save all', command=data_files.save_all_files)
 button_save_data.grid(row=0, column=14, columnspan=1, sticky='wnse')
+
+button_excitation_wavelengths = tk.Button(root, text="Load x-values", state=tk.DISABLED, command=load_x_values)
+button_excitation_wavelengths.grid(row=1, column=12, columnspan=2, sticky='wnse')
 
 button_meta_data = tk.Button(root, text='Acquisition info', command=data_files.get_acquisition_info)
 button_meta_data.grid(row=1, column=14, sticky='wnse')
