@@ -3,7 +3,7 @@ This program reads spectroscopic x,y data (.asc, .txt, or AndorFile .sif) of sin
 This data can be background_corrected, integrated, saved and plotted.
 
 Started: 10.09.2019
-Last edit: 08.06.2020
+Last edit: 10.06.2020
 Version: 1.1.0
 Creator: Manuel Eibl
 """
@@ -713,6 +713,7 @@ class BackgroundCorrection():
 # Adds all data to the lister box and plots it
 def plot_all(file_list):
     ax.cla()
+    integration_lines.lines = []
     lister.delete(0, tk.END)
     for file in file_list:
         _, file_name = os.path.split(file)
@@ -726,6 +727,7 @@ def plot_all(file_list):
 
 def re_plotter(ax):
     ax.cla()
+    integration_lines.lines = []
     integration_lines.x1 = None
     integration_lines.x2 = None
     selected_item_indexes = lister.curselection()
@@ -743,6 +745,7 @@ def re_plotter(ax):
 # For double click re-plotting
 def short_cut_re_plotter(event, ax):
     ax.cla()
+    integration_lines.lines = []
     integration_lines.x1 = None
     integration_lines.x2 = None
     selected_item_indexes = lister.curselection()
