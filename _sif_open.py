@@ -143,17 +143,17 @@ def _open(fp):
         info['SlitOpening'] = _read_int(fp)
         for _ in range(8):
             fp.readline()
-        if info['GateWidth'] != 0.0:
-            for _ in range(12):
-                _read_until(fp, ' ')
-        else:       # This happens for camera version DH340T-18H-13 e.g.
+        if info['GateWidth'] == 0.0:
             for _ in range(6):
                 _read_until(fp, ' ')
             info['GateDelay'] = _read_float(fp)
             info['GateWidth'] = _read_float(fp)
             for _ in range(4):
                 _read_until(fp, ' ')
-        info['GateDelayStep'] = _read_float(fp)
+            info['GateDelayStep'] = _read_float(fp)
+        else:       # This happens for camera version DH340T-18H-13 e.g.
+            for _ in range(12):
+                _read_until(fp, ' ')
         for _ in range(8):
             fp.readline()
     elif info['SifVersion'] > 65567:
