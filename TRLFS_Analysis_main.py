@@ -237,18 +237,31 @@ class DataFiles():
             os.mkdir(temp_path)
             ctypes.windll.kernel32.SetFileAttributesW(temp_path, 2) # hidden dir
             self.temp_dirs.append(temp_path)    # for deletion of temp dir on closing of GUI
-        data, info, _ = trlfs.lifetime_handler(lifetime_file)
-        xdata = extract_calibration(info)
-        for i in range(info['NumberOfFrames']):
-            temp_file_name = file_name.split('.')[0] + '_' + str(int(1 + (i*info['GateDelayStep']*10**-6))) + '.asc'
-            temp_file = os.path.join(temp_path, temp_file_name)
-            output = ''
-            ydata = data[i][0]
-            for j, x_value in enumerate(xdata):
-                output += str(x_value) + '\t' + str(ydata[j]) + '\n'
-            with open(temp_file, 'w+') as f:
-                f.write(output)
-            output_files_list.append(temp_file)
+        data, info, type = trlfs.lifetime_handler(lifetime_file)
+        if type == 3:
+            xdata, ydata, number_of_frames = trlfs.load_multi_column_data(lifetime_file)
+            for i in range(number_of_frames):
+                temp_file_name = file_name.split('.')[0] + '_' + str(int(i + 1)) + '.asc'
+                temp_file = os.path.join(temp_path, temp_file_name)
+                output = ''
+                ydata = data[i]
+                for j, x_value in enumerate(xdata):
+                    output += str(x_value) + '\t' + str(ydata[j]) + '\n'
+                with open(temp_file, 'w+') as f:
+                    f.write(output)
+                output_files_list.append(temp_file)
+        else:
+            xdata = extract_calibration(info)
+            for i in range(info['NumberOfFrames']):
+                temp_file_name = file_name.split('.')[0] + '_' + str(int(1 + (i*info['GateDelayStep']*10**-6))) + '.asc'
+                temp_file = os.path.join(temp_path, temp_file_name)
+                output = ''
+                ydata = data[i][0]
+                for j, x_value in enumerate(xdata):
+                    output += str(x_value) + '\t' + str(ydata[j]) + '\n'
+                with open(temp_file, 'w+') as f:
+                    f.write(output)
+                output_files_list.append(temp_file)
         return output_files_list
 
     def save_selected_files(self):
@@ -772,7 +785,7 @@ def browse_files():
     new_files = list(root.filename)
     files_to_add = []
     data_files.info = []    # If lifetime measurements were loaded earlier, its acquisition information is cleared
-    if len(new_files) == 1 and new_files[0].split('.')[-1] == 'sif':
+    if len(new_files) == 1:
         file = new_files[0]
         data, info, type = trlfs.lifetime_handler(file)
         if type == 2:
@@ -780,7 +793,12 @@ def browse_files():
             data_files.clear_all()
             files_to_add = data_files.lifetime_converter(file)
             data_files.info = info
+        elif type == 3:     # Multi column ascii lifetime file
+            new_files = []
+            data_files.clear_all()
+            files_to_add = data_files.lifetime_converter(file)
     old_files = data_files.get_list_of_all_files()
+
     if new_files != []:
         for file in new_files:
             if file not in old_files:

@@ -16,8 +16,7 @@ norm_data: normalizes the data as
 """
 import sif_reader
 from sif_reader import extract_calibration
-from scipy import interpolate
-from scipy import integrate
+import os
 
 
 def load_data(inp_data):
@@ -39,12 +38,6 @@ def load_data(inp_data):
                 ydata.append(y)
             except:
                 try:
-                    splitted_line = line.split(',')
-                    x = float(splitted_line[0])
-                    y = float(splitted_line[1])
-                    xdata.append(x)
-                    ydata.append(y)
-                except:
                     splitted_line = line.split()
                     x_with_comma = splitted_line[0].split(',')
                     x_with_dot = x_with_comma[0] + '.' + x_with_comma[1]
@@ -52,18 +45,76 @@ def load_data(inp_data):
                     y = float(splitted_line[1])
                     xdata.append(x)
                     ydata.append(y)
+                except:
+                    splitted_line = line.split(',')
+                    x = float(splitted_line[0])
+                    y = float(splitted_line[1])
+                    xdata.append(x)
+                    ydata.append(y)
     return xdata, ydata
 
+def load_multi_column_data(inp_data):
+    xdata = []
+    ydata = []
+    number_of_y_columns = 0
+    with open(inp_data, 'r') as f:
+        data = f.readlines()
+    for line in data:
+        try:
+            splitted_line = line.split()
+            number_of_y_columns = len(splitted_line) - 1
+            x = float(splitted_line[0])
+            xdata.append(x)
+            for i in range(number_of_y_columns):
+                y = float(splitted_line[i + 1])
+                ydata.append([])
+                ydata[i].append(y)
+        except:
+            try:
+                splitted_line = line.split()
+                number_of_y_columns = len(splitted_line) - 1
+                x_with_comma = splitted_line[0].split(',')
+                x_with_dot = x_with_comma[0] + '.' + x_with_comma[1]
+                x = float(x_with_dot)
+                xdata.append(x)
+                for i in range(number_of_y_columns):
+                    y = float(splitted_line[i + 1])
+                    ydata.append([])
+                    ydata[i].append(y)
+            except:
+                splitted_line = line.split(',')
+                number_of_y_columns = len(splitted_line) - 1
+                x = float(splitted_line[0])
+                xdata.append(x)
+                for i in range(number_of_y_columns):
+                    y = float(splitted_line[i + 1])
+                    ydata.append([])
+                    ydata[i].append(y)
+    return xdata, ydata, number_of_y_columns
+
 def lifetime_handler(inp_data):
-    try:
-        data, info = sif_reader.np_open(inp_data)
-        data_fail_test = data[1][0] # Will fail if it is a single .sif spectrum
-        type = 2
+    if inp_data.split('.')[-1] == 'sif':
+        try:
+            data, info = sif_reader.np_open(inp_data)
+            data_fail_test = data[1][0] # Will fail if it is a single .sif spectrum
+            type = 2
+            return data, info, type
+        except:
+            data, info = sif_reader.np_open(inp_data)
+            type = 1
+            return data, info, type
+    else:
+        try:
+            xdata, ydata, number_of_y_columns = load_multi_column_data(inp_data)
+            data = ydata
+            info = xdata
+            type = 3
+        except:
+            data = []
+            info = []
+            type = 1
         return data, info, type
-    except:
-        data, info = sif_reader.np_open(inp_data)
-        type = 1
-        return data, info, type
+
 
 
 def load_wavelength_data(inp_data):
