@@ -162,7 +162,7 @@ def _open(fp):
 
     info['SifCalbVersion'] = int(_read_until(fp, ' ')) # 65539
     # additional skip for this version
-    if info['SifCalbVersion'] == 65540:
+    if info['SifCalbVersion'] == 65540 or info['SifCalbVersion'] == 65539:
         fp.readline()
 
     # 4th-order polynomial coefficients
@@ -170,7 +170,8 @@ def _open(fp):
 
     fp.readline() # 0 1 0 0 newline
     fp.readline() # 0 1 0 0 newline
-    fp.readline() # 0 1 0 0 newline
+    if info['SifCalbVersion'] != 65539:
+        fp.readline() # 0 1 0 0 newline
 
     fp.readline() # 422 newline or 433 newline
 
