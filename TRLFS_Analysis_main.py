@@ -4,7 +4,7 @@ This data can be background_corrected, integrated, saved and plotted.
 
 Started: 10.09.2019
 Last edit: 10.06.2020
-Version: 1.1.0
+Version: 1.1.4
 Creator: Manuel Eibl
 """
 

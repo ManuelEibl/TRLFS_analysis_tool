@@ -2,7 +2,7 @@
 This tool can be used to plot x,y data, perform simple background subtraction and integrate a data series.  
 It comes with a GUI to facilitate usage.
 
-![Image of JackTheMiller](https://github.com/JackTheMiller/images/blob/master/GUI.PNG)
+![Image of GUI](https://github.com/ManuelEibl/images/blob/master/TRLFS_Analysis_tool.PNG)
 
 ## Basic usage
 Input can be either a text file such as .asc, .txt, .dat or the Andor Software File .sif. Multi-imaged .sif files,
